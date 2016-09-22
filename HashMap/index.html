@@ -2,41 +2,34 @@
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]--><!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8"><![endif]--><!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9"><![endif]--><!--[if gt IE 8]><!--><html class="no-js">
 <!--<![endif]--> <head> <meta charset="UTF-8"> <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"> <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> <title>Java源码分析——HashMap – WorkHard-Website</title> <meta name="description" content="This is my own site."> <meta name="keywords" content="JavaBasic"> <!-- Twitter Cards --> <meta name="twitter:card" content="summary"> <meta name="twitter:image" content="https://ckape.github.io/workhard/assets/img/logo.png"> <meta name="twitter:title" content="Java源码分析——HashMap"> <meta name="twitter:description" content="HashMap源码分析."> <!-- Open Graph --> <meta property="og:locale" content="en_US"> <meta property="og:type" content="article"> <meta property="og:title" content="Java源码分析——HashMap"> <meta property="og:description" content="HashMap源码分析."> <meta property="og:url" content="https://ckape.github.io/workhard/HashMap/"> <meta property="og:site_name" content="WorkHard-Website"> <meta property="og:image" content="https://ckape.github.io/workhard/assets/img/logo.png"> <link rel="canonical" href="https://ckape.github.io/workhard/HashMap/"> <link href="https://ckape.github.io/workhard/feed.xml" type="application/atom+xml" rel="alternate" title="WorkHard-Website Feed"> <!-- Handheld --> <meta name="HandheldFriendly" content="True"> <meta name="MobileOptimized" content="320"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- CSS --> <link rel="stylesheet" href="https://ckape.github.io/workhard/assets/css/main.css"> <!-- JS --> <script src="https://ckape.github.io/workhard/assets/js/modernizr-3.3.1.custom.min.js"></script> <!-- Favicons --> <link rel="apple-touch-icon" href="https://ckape.github.io/workhard/assets/img/favicons/apple-icon-precomposed.png"> <link rel="apple-touch-icon" sizes="72x72" href="https://ckape.github.io/workhard/assets/img/favicons/apple-icon-72x72.png"> <link rel="apple-touch-icon" sizes="114x114" href="https://ckape.github.io/workhard/assets/img/favicons/apple-icon-114x114.png"> <link rel="apple-touch-icon" sizes="144x144" href="https://ckape.github.io/workhard/assets/img/favicons/apple-icon-144x144.png"> <link rel="shortcut icon" type="image/png" href="https://ckape.github.io/workhard/favicon.png"> <link rel="shortcut icon" href="https://ckape.github.io/workhard/favicon.ico"> <!-- Background Image --> <style type="text/css">body {background-image:url(https://ckape.github.io/workhard/assets/img/placeholder-big.jpg); background-repeat: no-repeat; background-size: cover; }</style> <!-- Post Feature Image --> </head> <body> <nav id="dl-menu" class="dl-menuwrapper" role="navigation"> <button class="dl-trigger">Open Menu</button> <ul class="dl-menu"> <li><a href="https://ckape.github.io/workhard/">Home</a></li> <li> <a href="#">About</a> <ul class="dl-submenu"> <li> <img src="https://ckape.github.io/workhard/assets/img/logo.png" alt="WorkHard-Website photo" class="author-photo"> <h4>WorkHard-Website</h4> <p>This is my own site.</p> </li> <li><a href="https://ckape.github.io/workhard/about/"><span class="btn btn-inverse">Learn More</span></a></li> <li> <a href="mailto:kape520@163.com" target="_blank" rel="noopener noreferrer"><i class="fa fa-fw fa-envelope-square"></i> Email</a> </li> <li> <a href="http://github.com/ckape" target="_blank" rel="noopener noreferrer"><i class="fa fa-fw fa-github"></i> Github</a> </li> </ul>
 <!-- /.dl-submenu --> </li> <li> <a href="#">Posts</a> <ul class="dl-submenu"> <li><a href="https://ckape.github.io/workhard/posts/">All Posts</a></li> <li><a href="https://ckape.github.io/workhard/tags/">All Tags</a></li> </ul> </li> <li><a href="https://ckape.github.io/workhard/projects/">Projects</a></li> </ul>
-<!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper animated fadeIn"> <div class="content"> <div class="post-title "> <h1>Java源码分析——HashMap</h1> <h4>21 Sep 2016</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~7 minutes </p>
+<!-- /.dl-menu --> </nav><!-- /.dl-menuwrapper --> <!-- Header --> <header class="header" role="banner"> <div class="wrapper animated fadeIn"> <div class="content"> <div class="post-title "> <h1>Java源码分析——HashMap</h1> <h4>21 Sep 2016</h4> <p class="reading-time"> <i class="fa fa-clock-o"></i> Reading time ~6 minutes </p>
 <!-- /.entry-reading-time --> <a class="btn zoombtn" href="https://ckape.github.io/workhard/posts/"> <i class="fa fa-chevron-left"></i> </a> </div> <h1 id="map">Map</h1> <ol> <li>HashMap（常用）</li> <li>TreeMap（常用）</li> <li>ConcurrentHashMap（并发）</li> <li>EnumMap（枚举map）</li> <li>Hashtable</li> <li>LinkedHashMap</li> </ol> <h2 id="hashmap">HashMap</h2> <ol> <li>map <ul> <li>定义 <blockquote> <p>一个把键映射到值的对象被称作一个映射表对象。映射表不能包含重复的键，每个键至多可以与一个值关联。Map接口提供了三个集合视图：键的集合视图、值的集合视图以及键值对的集合视图。一个映射表的顺序取决于它的集合视图的迭代器返回元素的顺序。一些Map接口的具体实现（比如TreeMap）保证元素有一定的顺序，其它一些实现（比如HashMap）则不保证元素在其内部有序。</p> </blockquote> </li> </ul> </li> <li>HashMap <ul> <li>定义 <blockquote> <p>HashMap&lt;K, V&gt;是基于哈希表这个数据结构的Map接口具体实现，允许null键和null值（最多只允许一个key为null，但允许多个value为null）。这个类与HashTable近似等价，区别在于HashMap不是线程安全的并且允许null键和null值。由于基于哈希表实现，所以HashMap内部的元素是无序的。HashMap对与get与put操作的时间复杂度是常数级别的（在散列均匀的前提下）。对HashMap的集合视图进行迭代所需时间与HashMap的capacity（bucket的数量）加上HashMap的尺寸（键值对的数量）成正比。因此，若迭代操作的性能很重要，不要把初始capacity设的过高（不要把load factor设的过低）。</p> </blockquote> </li> </ul> </li> </ol> <ul> <li>影响性能的因素： <ul> <li>intial capacity（初始容量）：HashMap对象刚创建时其内部的哈希表的“桶”的数量；</li> <li>load factor（负载因子）：maxSize / capacity，也就是HashMap所允许的最大键值对数与桶数的比值，当我们清楚自己将要大概存放多少数据时，也可以自定义load factor的大小； <em>注意：增大load factor可以节省空间但查找一个元素的时间会增加，减小load factor会占用更多的存储空间，但是get与put的操作会更快。当HashMap中的键值对数量超过了maxSize（即load factor与capacity的乘积），它会再散列，再散列会重建内部数据结构，桶数（capacity）大约会增加到原来的两倍。</em>
-</li> </ul> </li> </ul> <div class="language-java highlighter-rouge"><pre class="highlight"><code>    <span class="cm">/**
-     * The default initial capacity - MUST be a power of two.
-     */</span>
-    <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">DEFAULT_INITIAL_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="o">;</span> <span class="c1">// aka 16</span>
-    <span class="cm">/**
-     * The maximum capacity, used if a higher value is implicitly specified
-     * by either of the constructors with arguments.
-     * MUST be a power of two &lt;= 1&lt;&lt;30.
-     */</span>
-    <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAXIMUM_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="o">;</span>
-    <span class="cm">/**
-     * The load factor used when none specified in constructor.
-     */</span>
-    <span class="kd">static</span> <span class="kd">final</span> <span class="kt">float</span> <span class="n">DEFAULT_LOAD_FACTOR</span> <span class="o">=</span> <span class="mf">0.75f</span><span class="o">;</span>
-    <span class="cm">/**
-     * An empty table instance to share when the table is not inflated.
-     */</span>
-    <span class="kd">static</span> <span class="kd">final</span> <span class="n">Entry</span><span class="o">&lt;?,?&gt;[]</span> <span class="n">EMPTY_TABLE</span> <span class="o">=</span> <span class="o">{};</span>
-    <span class="cm">/**
-     * The table, resized as necessary. Length MUST Always be a power of two.
-     */</span>
-    <span class="kd">transient</span> <span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[])</span> <span class="n">EMPTY_TABLE</span><span class="o">;</span>
-    <span class="cm">/**
-     * The number of key-value mappings contained in this map.
-     */</span>
-    <span class="kd">transient</span> <span class="kt">int</span> <span class="n">size</span><span class="o">;</span>
-    <span class="cm">/**
-     * The next size value at which to resize (capacity * load factor).
-     * @serial
-     */</span>
-    <span class="c1">// If table == EMPTY_TABLE then this is the initial capacity at which the</span>
-    <span class="c1">// table will be created when inflated.</span>
-    <span class="kt">int</span> <span class="n">threshold</span><span class="o">;</span>
+</li> </ul> </li> </ul> <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//默认初始容量是16，必须是2的幂  </span>
+<span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">DEFAULT_INITIAL_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="o">;</span> <span class="c1">// aka 16  </span>
+
+<span class="c1">//最大容量（必须是2的幂且小于2的30次方，传入容量过大会被这个值替换）  </span>
+<span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAXIMUM_CAPACITY</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="o">;</span>  
+
+<span class="c1">//默认加载因子，所谓加载因子是指哈希表在其容量自动增加之前可以达到多满的一种尺度  </span>
+<span class="kd">static</span> <span class="kd">final</span> <span class="kt">float</span> <span class="n">DEFAULT_LOAD_FACTOR</span> <span class="o">=</span> <span class="mf">0.75f</span><span class="o">;</span>  
+
+<span class="c1">//存储Entry的默认空数组  </span>
+<span class="kd">static</span> <span class="kd">final</span> <span class="n">Entry</span><span class="o">&lt;?,?&gt;[]</span> <span class="n">EMPTY_TABLE</span> <span class="o">=</span> <span class="o">{};</span>  
+
+<span class="c1">//存储Entry的数组，长度为2的幂。HashMap采用拉链法实现的，每个Entry的本质是个单向链表  </span>
+<span class="kd">transient</span> <span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[])</span> <span class="n">EMPTY_TABLE</span><span class="o">;</span>  
+
+<span class="c1">//HashMap的大小，即HashMap存储的键值对数量  </span>
+<span class="kd">transient</span> <span class="kt">int</span> <span class="n">size</span><span class="o">;</span>  
+
+<span class="c1">//HashMap的阈值，用于判断是否需要调整HashMap的容量  </span>
+<span class="kt">int</span> <span class="n">threshold</span><span class="o">;</span>  
+
+<span class="c1">//加载因子实际大小  </span>
+<span class="kd">final</span> <span class="kt">float</span> <span class="n">loadFactor</span><span class="o">;</span>  
+
+<span class="c1">//HashMap被修改的次数，用于fail-fast机制  </span>
+<span class="kd">transient</span> <span class="kt">int</span> <span class="n">modCount</span><span class="o">;</span>
 </code></pre></div> <ul> <li> <p>HashMap构造函数</p> <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="cm">/**
      * Constructs an empty &lt;tt&gt;HashMap&lt;/tt&gt; with the specified initial
      * capacity and load factor.
@@ -61,7 +54,7 @@
         <span class="n">init</span><span class="o">();</span>
     <span class="o">}</span>
 </code></pre></div> <p><code class="highlighter-rouge">threshold</code>即为上文提到的maxSize。</p> </li> <li> <p>基本实现原理 HashMap是基于拉链法处理碰撞的散列表的实现，一个存储整型元素的HashMap的内部存储结构如下图所示：</p> </li> </ul> <figure> <img src="http://upload-images.jianshu.io/upload_images/2397836-3be8c0d8ef3f12bf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"> </figure> <p>我们可以看到，HashMap是采用<code class="highlighter-rouge">数组+链表</code>实现的，<strong>在JDK 1.8中，对HashMap做了进一步优化，引入了红黑树。当链表的长度大于8时，就会使用红黑树来代替链表</strong>。</p> <ul> <li>源码分析 <ul> <li>jdk1.7 <ul> <li>
-<code class="highlighter-rouge">table</code>字段是一个Entry&lt;K, V&gt;数组.</li> </ul> <div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="cm">/**
+<code class="highlighter-rouge">table</code>字段是一个Entry&lt;K, V&gt;数组.</li> <li>HashMap的底层是通过链表来解决<code class="highlighter-rouge">hash冲突</code>的，即<code class="highlighter-rouge">碰撞</code>.</li> </ul> <div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="cm">/**
     * An empty table instance to share when the table is not inflated.
     */</span>
    <span class="kd">static</span> <span class="kd">final</span> <span class="n">Entry</span><span class="o">&lt;?,?&gt;[]</span> <span class="n">EMPTY_TABLE</span> <span class="o">=</span> <span class="o">{};</span>
@@ -70,7 +63,13 @@
     * The table, resized as necessary. Length MUST Always be a power of two.
     */</span>
    <span class="kd">transient</span> <span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[]</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;[])</span> <span class="n">EMPTY_TABLE</span><span class="o">;</span>
-  <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
+
+   <span class="cm">/**
+    * Entry&lt;K,V&gt;是存储对应键值对的节点，里面还定义了next指向了下一个节点
+    * 所以是一个单向链表，是HashMap链式存储对应的链表
+    *
+    */</span>
+   <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
      <span class="kd">final</span> <span class="n">K</span> <span class="n">key</span><span class="o">;</span>
      <span class="n">V</span> <span class="n">value</span><span class="o">;</span>
      <span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">next</span><span class="o">;</span>
@@ -95,6 +94,7 @@
          <span class="n">value</span> <span class="o">=</span> <span class="n">newValue</span><span class="o">;</span>
          <span class="k">return</span> <span class="n">oldValue</span><span class="o">;</span>
      <span class="o">}</span>
+     <span class="c1">//重写了equals方法，用于遍历链表取值</span>
      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
          <span class="k">if</span> <span class="o">(!(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">))</span>
              <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
@@ -117,16 +117,16 @@
          <span class="k">return</span> <span class="nf">getKey</span><span class="o">()</span> <span class="o">+</span> <span class="s">"="</span> <span class="o">+</span> <span class="n">getValue</span><span class="o">();</span>
      <span class="o">}</span>
      <span class="cm">/**
-      * This method is invoked whenever the value in an entry is
-      * overwritten by an invocation of put(k,v) for a key k that's already
-      * in the HashMap.
-      */</span>
+      * 当向HashMap中添加元素时，即调用put(k,v)时，
+      * 对已经在HashMap中k位置进行v的覆盖时，会调用此方法
+      * 这里没做任何处理
+      */</span>  
      <span class="kt">void</span> <span class="nf">recordAccess</span><span class="o">(</span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">m</span><span class="o">)</span> <span class="o">{</span>
      <span class="o">}</span>
      <span class="cm">/**
-      * This method is invoked whenever the entry is
-      * removed from the table.
-      */</span>
+      * 当从HashMap中删除了一个Entry时，会调用该函数
+      * 这里没做任何处理
+      */</span>  
      <span class="kt">void</span> <span class="nf">recordRemoval</span><span class="o">(</span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">m</span><span class="o">)</span> <span class="o">{</span>
      <span class="o">}</span>
  <span class="o">}</span>
@@ -143,13 +143,16 @@
  *         previously associated &lt;tt&gt;null&lt;/tt&gt; with &lt;tt&gt;key&lt;/tt&gt;.)
  */</span>
 <span class="kd">public</span> <span class="n">V</span> <span class="nf">put</span><span class="o">(</span><span class="n">K</span> <span class="n">key</span><span class="o">,</span> <span class="n">V</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//如果哈希表没有初始化(table为空)  </span>
+    <span class="c1">//用构造时的阈值(其实就是初始容量)扩展table  </span>
     <span class="k">if</span> <span class="o">(</span><span class="n">table</span> <span class="o">==</span> <span class="n">EMPTY_TABLE</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">inflateTable</span><span class="o">(</span><span class="n">threshold</span><span class="o">);</span>
     <span class="o">}</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">key</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
-        <span class="c1">//如果key值为空，就调用putForNullKey方法  </span>
+    <span class="c1">//如果key==null，就将value加到table[0]的位置  </span>
+    <span class="c1">//该位置永远只有一个value，新传进来的value会覆盖旧的value   </span>
         <span class="k">return</span> <span class="nf">putForNullKey</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
-    <span class="c1">//计算hash值，并且计算出值的位置</span>
+    <span class="c1">//计算hash值，并且计算出值的索引</span>
     <span class="kt">int</span> <span class="n">hash</span> <span class="o">=</span> <span class="n">hash</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
     <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">indexFor</span><span class="o">(</span><span class="n">hash</span><span class="o">,</span> <span class="n">table</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
     <span class="k">for</span> <span class="o">(</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">table</span><span class="o">[</span><span class="n">i</span><span class="o">];</span> <span class="n">e</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">next</span><span class="o">)</span> <span class="o">{</span>
@@ -162,7 +165,7 @@
         <span class="o">}</span>
     <span class="o">}</span>
     <span class="n">modCount</span><span class="o">++;</span>
-    <span class="c1">//如果正常的话就添加到链表</span>
+    <span class="c1">//如果在table[i]中没找到对应的key，那么就直接在该位置的链表中添加此Entry</span>
     <span class="n">addEntry</span><span class="o">(</span><span class="n">hash</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">,</span> <span class="n">i</span><span class="o">);</span>
     <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
 <span class="o">}</span>
